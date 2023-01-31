@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CALL PROVICE API</title>
+</head>
+
+<body>
+    <select id="province">
+        <option value="-1">Tỉnh/Thành Phố</option>
+    </select>
+    <select id="district">
+        <option value="-1">Quận/Huyện</option>
+    </select>
+    <select id="ward">
+        <option value="-1">Xã/Phường</option>
+    </select>
+    <hr>
+    <p>by tdatIt.2k2</p>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function (e) {
+            $.ajax({
+                url: 'https://provinces.open-api.vn/api/',
+                method: 'GET',
+                success: function (data) {
+                    data.forEach(element => {
+                        var key = element.code;
+                        var value = element.name;
+                        $('#province').append($("<option></option>")
+                            .attr("value", key)
+                            .text(value));
+                    });
+                }
+            })
+        })
+        $('#province').change(function (e) {
+            var code = $(this).val()
+            getListDistrict(code)
+
+        })
+        $('#district').change(function (e) {
+            var code = $(this).val()
+            getListWard(code)
+        })
+        function getListDistrict(code) {
+            $.ajax({
+                url: 'https://provinces.open-api.vn/api/p/' + code + '?depth=2',
+                method: 'GET',
+                success: function (data) {
+                    $('#district').empty()
+                    data.districts.forEach(element => {
+                        var key = element.code
+                        var value = element.name
+                        $('#district').append($("<option></option>")
+                            .attr("value", key)
+                            .text(value))
+                    })
+                    getListWard(data.districts[0].code)
+                }
+            })
+        }
+        function getListWard(code) {
+            $.ajax({
+                url: 'https://provinces.open-api.vn/api/d/' + code + '?depth=2',
+                method: 'GET',
+                success: function (data) {
+                    $('#ward').empty()
+                    data.wards.forEach(element => {
+                        var key = element.code
+                        var value = element.name
+                        $('#ward').append($("<option></option>")
+                            .attr("value", key)
+                            .text(value))
+                    })
+                }
+            })
+
+        }
+    </script>
+</body>
+
+</html>
